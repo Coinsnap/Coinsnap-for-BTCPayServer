@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/BTCPayServer.Plugins.Coinsnap/BTCPayServer.Plugins.Coinsnap.csproj" />
+  <Project Path="tests/BTCPayServer.Plugins.Coinsnap.Tests/BTCPayServer.Plugins.Coinsnap.Tests.csproj" />
+</Solution>

@@ -1,0 +1,20 @@
+@model LightningNodeViewModel
+@{
+    if (Model.CryptoCode != "BTC")
+    {
+        return;
+    }
+    var isCoinsnap = Model.ConnectionString?.StartsWith("type=coinsnap;", StringComparison.OrdinalIgnoreCase) is true;
+}
+<input name="LightningNodeType"
+       value="Custom"
+       type="radio"
+       id="LightningNodeType-Coinsnap"
+       data-bs-toggle="pill"
+       data-bs-target="#CoinsnapSetup"
+       role="tab"
+       aria-controls="CoinsnapSetup"
+       aria-selected="@(isCoinsnap ? "true" : "false")"
+       checked="@(isCoinsnap ? "checked" : null)"
+       class="@(isCoinsnap ? "active" : "")" />
+<label for="LightningNodeType-Coinsnap">Coinsnap Wallet</label>
