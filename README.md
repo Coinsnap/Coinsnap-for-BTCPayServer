@@ -74,7 +74,8 @@ The plugin contains no currency conversion logic. Account routing is handled ent
 ## Install the plugin
 
 1. Build `BTCPayServer.Plugins.Coinsnap.btcpay` with `./pack.sh` (see [Build and test](#build-and-test)),
-   or get it from Coinsnap. Check it against the SHA-256 in the `SHA256SUMS` file that comes with it.
+   or get it from Coinsnap. If you got it from Coinsnap, check its SHA-256 (`sha256sum`) against the
+   value Coinsnap publishes, not only against the `SHA256SUMS` file that comes with it.
 2. In BTCPay, open the **Plugins** menu → **Installed Plugins**, scroll to **Upload Plugin**, select
    the file and press **Upload**.
 3. Press **Restart now** at the top of the page. After the restart the plugin is listed under
