@@ -47,8 +47,8 @@ in BTCPay within a few seconds.
 - **Privacy.** The plugin sends Coinsnap only what a Lightning payment needs: no customer names,
   emails, addresses or cart contents. Your Lightning Address is public and appears in every invoice;
   use a separate address per store if you don't want stores linked.
-- **Matching payments.** Match Coinsnap Wallet entries to orders by the Lightning payment hash, which
-  BTCPay shows in the invoice's payment details.
+- **Matching payments.** Each paid invoice lists its Lightning invoice and payment proof under
+  **Off-Chain Payments**; use them to match Coinsnap Wallet entries to orders.
 - **Several stores** on one server can each use their own address, or share one.
 
 ## Limitations
@@ -57,6 +57,8 @@ in BTCPay within a few seconds.
 - fixed amounts in whole satoshis, within the minimum and maximum Coinsnap sets. Invoices outside
   those limits are offered without Lightning; if Lightning is the store's only payment method, such
   an invoice cannot be created
+- top-up invoices without a fixed amount are paid through BTCPay's LNURL: the customer's wallet
+  asks for the amount
 - no outgoing payments, balances, channels or automatic refunds
 
 ## Build
