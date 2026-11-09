@@ -42,7 +42,12 @@ public sealed class CoinsnapPlugin : BaseBTCPayServerPlugin
         services.AddSingleton<ICoinsnapBolt11Parser, CoinsnapBolt11Parser>();
         services.AddSingleton<ICoinsnapStateStore, BtcpayCoinsnapStateStore>();
         services.AddSingleton<ICoinsnapInvoiceStateRepository, CoinsnapInvoiceStateRepository>();
-        services.AddSingleton<ICoinsnapStoreConfigLookup, BtcpayCoinsnapStoreConfigLookup>();
+        services.AddSingleton<BtcpayCoinsnapStoreConfigLookup>();
+        services.AddSingleton<ICoinsnapStoreConfigLookup>(provider => provider.GetRequiredService<BtcpayCoinsnapStoreConfigLookup>());
+        services.AddSingleton<IHostedService>(provider => new CoinsnapForeignStoreGuard(
+            provider.GetRequiredService<BTCPayServer.EventAggregator>(),
+            provider.GetRequiredService<BtcpayCoinsnapStoreConfigLookup>(),
+            provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CoinsnapForeignStoreGuard>>()));
         services.AddSingleton<ICoinsnapStoreBinding, CoinsnapStoreBinding>();
         services.AddSingleton<CoinsnapBindingRotation>(provider => new CoinsnapBindingRotation(
             provider.GetRequiredService<BTCPayServer.EventAggregator>(),

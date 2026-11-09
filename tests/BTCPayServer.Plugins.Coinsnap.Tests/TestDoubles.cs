@@ -153,10 +153,22 @@ internal static class TestData
     }
 }
 
-internal sealed class FakeStoreConfigLookup : ICoinsnapStoreConfigLookup
+internal sealed class FakeStoreConfigLookup : ICoinsnapStoreConfigStore
 {
     public Dictionary<string, string> ConnectionStrings { get; } = new(StringComparer.Ordinal);
+    public List<string> Removed { get; } = [];
+    public HashSet<string> FailingStores { get; } = new(StringComparer.Ordinal);
     public Exception? Failure { get; set; }
+
+    public Task<IReadOnlyCollection<string>> GetStoreIdsAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyCollection<string>>(ConnectionStrings.Keys.ToArray());
+
+    public Task RemoveLightningConnectionAsync(string storeId, CancellationToken cancellationToken = default)
+    {
+        ConnectionStrings.Remove(storeId);
+        Removed.Add(storeId);
+        return Task.CompletedTask;
+    }
 
     public static FakeStoreConfigLookup Declaring(string storeId, string address)
     {
@@ -169,6 +181,8 @@ internal sealed class FakeStoreConfigLookup : ICoinsnapStoreConfigLookup
     {
         if (Failure is not null)
             return Task.FromException<string?>(Failure);
+        if (FailingStores.Contains(storeId))
+            return Task.FromException<string?>(new InvalidOperationException($"store {storeId} unavailable"));
         return Task.FromResult(ConnectionStrings.TryGetValue(storeId, out var value) ? value : null);
     }
 }

@@ -13,6 +13,12 @@ internal interface ICoinsnapStoreConfigLookup
     Task<string?> GetLightningConnectionStringAsync(string storeId, CancellationToken cancellationToken = default);
 }
 
+internal interface ICoinsnapStoreConfigStore : ICoinsnapStoreConfigLookup
+{
+    Task<IReadOnlyCollection<string>> GetStoreIdsAsync(CancellationToken cancellationToken = default);
+    Task RemoveLightningConnectionAsync(string storeId, CancellationToken cancellationToken = default);
+}
+
 internal static class CoinsnapStoreClaim
 {
     /// <summary>A claimed store-id is trusted only when that store's own Lightning configuration is
@@ -46,9 +52,27 @@ internal static class CoinsnapStoreClaim
         return values.TryGetValue("store-id", out var configuredStoreId) &&
                configuredStoreId.Equals(storeId, StringComparison.Ordinal);
     }
+
+    /// <summary>A binding is copyable, so a Coinsnap connection is valid only in the store it names.</summary>
+    internal static bool NamesAnotherStore(string? connectionString, string savingStoreId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return false;
+        try
+        {
+            var values = LightningConnectionStringHelper.ExtractValues(connectionString, out var type);
+            return type.Equals(CoinsnapConstants.ConnectionType, StringComparison.OrdinalIgnoreCase) &&
+                   values.TryGetValue("store-id", out var storeId) &&
+                   !storeId.Equals(savingStoreId, StringComparison.Ordinal);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
 }
 
-internal sealed class BtcpayCoinsnapStoreConfigLookup : ICoinsnapStoreConfigLookup
+internal sealed class BtcpayCoinsnapStoreConfigLookup : ICoinsnapStoreConfigStore
 {
     private readonly IServiceProvider _provider;
 
@@ -70,5 +94,21 @@ internal sealed class BtcpayCoinsnapStoreConfigLookup : ICoinsnapStoreConfigLook
             return null;
         var paymentMethodId = PaymentTypes.LN.GetPaymentMethodId("BTC");
         return store.GetPaymentMethodConfig<LightningPaymentMethodConfig>(paymentMethodId, handlers)?.ConnectionString;
+    }
+
+    public async Task<IReadOnlyCollection<string>> GetStoreIdsAsync(CancellationToken cancellationToken = default)
+    {
+        var stores = await _provider.GetRequiredService<StoreRepository>().GetStores();
+        return stores.Select(s => s.Id).ToArray();
+    }
+
+    public async Task RemoveLightningConnectionAsync(string storeId, CancellationToken cancellationToken = default)
+    {
+        var stores = _provider.GetRequiredService<StoreRepository>();
+        var store = await stores.FindStore(storeId);
+        if (store is null)
+            return;
+        store.SetPaymentMethodConfig(PaymentTypes.LN.GetPaymentMethodId("BTC"), null);
+        await stores.UpdateStore(store);
     }
 }
