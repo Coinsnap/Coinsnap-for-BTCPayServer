@@ -21,7 +21,7 @@ First beta release.
 
 ### Known limitations
 
-- Bitcoin mainnet only, BTCPay Server 2.4.7 to 2.4.x.
+- Bitcoin mainnet only, BTCPay Server 2.4.7 or newer.
 - Fixed amounts in whole satoshis, within Coinsnap's minimum and maximum.
 - No outgoing payments, refunds, balance queries or channel operations.
 
