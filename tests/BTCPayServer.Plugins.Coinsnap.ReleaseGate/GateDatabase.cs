@@ -22,4 +22,17 @@ public static class GateDatabase
         await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{database}\" WITH (FORCE)", connection);
         await drop.ExecuteNonQueryAsync();
     }
+
+    /// <summary>Removes a store's amount limits and the plugin's record of them, as if never set. BTCPay must be stopped.</summary>
+    public static async Task ClearAmountLimitsAsync(string storeId)
+    {
+        await using var connection = new NpgsqlConnection(GateConfig.PostgresConnectionString);
+        await connection.OpenAsync();
+        await using var update = new NpgsqlCommand(
+            "UPDATE \"Stores\" SET \"StoreBlob\" = \"StoreBlob\" - 'paymentMethodCriteria' - 'PaymentMethodCriteria' - 'coinsnapAmountLimits' WHERE \"Id\" = @id",
+            connection);
+        update.Parameters.AddWithValue("id", storeId);
+        if (await update.ExecuteNonQueryAsync() != 1)
+            throw new InvalidOperationException($"Store {storeId} was not found in the gate database.");
+    }
 }

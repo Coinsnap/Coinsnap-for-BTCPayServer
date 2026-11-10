@@ -202,6 +202,62 @@ public sealed class GreenfieldClient : IDisposable
         await ReadAsync(response);
     }
 
+    public async Task SetOnChainAsync(string storeId, string derivationScheme)
+    {
+        using var response = await _http.PutAsJsonAsync(
+            $"api/v1/stores/{storeId}/payment-methods/BTC-CHAIN", new { enabled = true, config = new { derivationScheme } });
+        await ReadAsync(response);
+    }
+
+    public async Task RemoveLightningAsync(string storeId)
+    {
+        using var response = await _http.DeleteAsync($"api/v1/stores/{storeId}/payment-methods/BTC-LN");
+        await ReadAsync(response);
+    }
+
+    /// <summary>The store's "enable payment methods only when amount is" limits, by payment method id.</summary>
+    public async Task<Dictionary<string, (decimal Amount, string Currency, bool Above)>> GetAmountLimitsAsync(string storeId)
+    {
+        using var response = await _http.GetAsync($"api/v1/stores/{storeId}");
+        var store = await ReadAsync(response);
+        var limits = new Dictionary<string, (decimal, string, bool)>();
+        if (store.TryGetProperty("paymentMethodCriteria", out var criteria) && criteria.ValueKind == JsonValueKind.Array)
+            foreach (var c in criteria.EnumerateArray())
+                limits[c.GetProperty("paymentMethodId").GetString()!] = (
+                    decimal.Parse(c.GetProperty("amount").GetString()!, System.Globalization.CultureInfo.InvariantCulture),
+                    c.GetProperty("currencyCode").GetString()!,
+                    c.GetProperty("above").GetBoolean());
+        return limits;
+    }
+
+    /// <summary>Sets one limit the way a merchant would, by saving the whole store.</summary>
+    public async Task SetAmountLimitAsync(string storeId, string paymentMethodId, decimal amount, string currency, bool above)
+    {
+        using var get = await _http.GetAsync($"api/v1/stores/{storeId}");
+        var store = System.Text.Json.Nodes.JsonNode.Parse((await ReadAsync(get)).GetRawText())!.AsObject();
+        var criteria = store["paymentMethodCriteria"] as System.Text.Json.Nodes.JsonArray ?? new System.Text.Json.Nodes.JsonArray();
+        foreach (var existing in criteria.Where(c => c?["paymentMethodId"]?.GetValue<string>() == paymentMethodId).ToList())
+            criteria.Remove(existing);
+        criteria.Add(new System.Text.Json.Nodes.JsonObject
+        {
+            ["paymentMethodId"] = paymentMethodId,
+            ["currencyCode"] = currency,
+            ["amount"] = amount.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["above"] = above
+        });
+        store["paymentMethodCriteria"] = criteria;
+        using var put = await _http.PutAsync($"api/v1/stores/{storeId}",
+            new StringContent(store.ToJsonString(), Encoding.UTF8, "application/json"));
+        await ReadAsync(put);
+    }
+
+    public async Task<string[]> GetInvoicePaymentMethodsAsync(string storeId, string invoiceId)
+    {
+        using var response = await _http.GetAsync($"api/v1/stores/{storeId}/invoices/{invoiceId}/payment-methods");
+        var methods = await ReadAsync(response);
+        return methods.EnumerateArray().Select(m => m.GetProperty("paymentMethodId").GetString()!).ToArray();
+    }
+
     /// <summary>Creates the store's own Lightning Address, name@btcpay-host, served by BTCPay.</summary>
     public async Task AddLightningAddressAsync(string storeId, string username)
     {
