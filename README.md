@@ -35,7 +35,7 @@ The plugin affects **Lightning receiving only**; it does not replace an existing
 
 ## Requirements
 
-- **BTCPay Server 2.4.7 or a compatible later 2.4.x version**, configured for Bitcoin mainnet.
+- **BTCPay Server 2.4.7 or newer**, configured for Bitcoin mainnet.
 - A **server administrator** to install the plugin once per BTCPay Server installation.
 - A **Coinsnap Wallet** with a Lightning Address ending in `@coinsnap.app`.
 
