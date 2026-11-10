@@ -20,8 +20,14 @@ internal sealed class CoinsnapHttpClient
         _httpClient = httpClient;
     }
 
-    public async Task<CoinsnapHttpResponse> GetAsync(Uri initialUri, string fieldName, CancellationToken cancellationToken)
+    public async Task<CoinsnapHttpResponse> GetAsync(Uri initialUri, string fieldName, CancellationToken callerToken)
     {
+        // HttpClient.Timeout stops at the headers under ResponseHeadersRead, so the body read gets its own deadline.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(callerToken);
+        if (_httpClient.Timeout != Timeout.InfiniteTimeSpan)
+            deadline.CancelAfter(_httpClient.Timeout);
+        var cancellationToken = deadline.Token;
+
         CoinsnapUrlPolicy.Validate(initialUri, fieldName);
         var current = initialUri;
 
