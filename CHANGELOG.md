@@ -19,10 +19,4 @@ First beta release.
 - Greenfield API endpoint to get a store's connection string:
   `GET /api/v1/stores/{storeId}/coinsnap/connection-string`.
 
-### Known limitations
-
-- Bitcoin mainnet only, BTCPay Server 2.4.7 or newer.
-- Fixed amounts in whole satoshis, within Coinsnap's minimum and maximum.
-- No outgoing payments, refunds, balance queries or channel operations.
-
 [0.1.0]: https://github.com/Coinsnap/Coinsnap-for-BTCPayServer/releases/tag/v0.1.0
