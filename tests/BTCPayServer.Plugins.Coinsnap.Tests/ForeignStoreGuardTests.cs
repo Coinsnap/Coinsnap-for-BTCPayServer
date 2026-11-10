@@ -83,6 +83,22 @@ public class ForeignStoreGuardTests
         await guard.StopAsync(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task StartupSurvivesWhenStoresCannotBeListedAndStillGuardsSaves()
+    {
+        var stores = Stores();
+        stores.ListFailure = new InvalidOperationException("database unavailable");
+        var events = new EventAggregator(new Logs());
+        var guard = Guard(stores, events);
+
+        await guard.StartAsync(CancellationToken.None);
+
+        stores.ConnectionStrings["attacker"] = VictimConnection;
+        events.Publish(new StoreEvent.Updated(new StoreData { Id = "attacker" }));
+        Assert.False(stores.ConnectionStrings.ContainsKey("attacker"));
+        await guard.StopAsync(CancellationToken.None);
+    }
+
     /// <summary>Removal must finish inside the save's own event, before the save request returns.</summary>
     [Fact]
     public async Task ASaveIsCleanedUpBeforeTheStoreUpdatedEventReturns()

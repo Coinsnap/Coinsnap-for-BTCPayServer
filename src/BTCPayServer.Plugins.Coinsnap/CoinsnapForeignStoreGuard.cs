@@ -42,7 +42,18 @@ internal sealed class CoinsnapForeignStoreGuard : IHostedService
         // Inline, not queued: Publish runs this before the saving request returns.
         _subscription = _events.Subscribe<StoreEvent.Updated>(e => TryEnforceAsync(e.StoreId, CancellationToken.None).GetAwaiter().GetResult());
 
-        foreach (var storeId in await _stores.GetStoreIdsAsync(cancellationToken))
+        IReadOnlyCollection<string> storeIds;
+        try
+        {
+            storeIds = await _stores.GetStoreIdsAsync(cancellationToken);
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "Could not list stores to check for Coinsnap connections issued for another store");
+            return;
+        }
+
+        foreach (var storeId in storeIds)
             await TryEnforceAsync(storeId, cancellationToken);
     }
 
