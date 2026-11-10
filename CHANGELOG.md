@@ -16,5 +16,6 @@ First beta release.
 - Invoices are marked paid only after the plugin verifies the payment proof returned by Coinsnap.
 - Lightning invoices and payment proofs are recorded under Off-Chain Payments for reconciliation.
 - Variable-amount top-ups through BTCPay Server's LNURL flow.
+- Lightning and LNURL are offered only for amounts up to the Lightning Address's maximum.
 
 [0.1.0]: https://github.com/Coinsnap/Coinsnap-for-BTCPayServer/releases/tag/v0.1.0
