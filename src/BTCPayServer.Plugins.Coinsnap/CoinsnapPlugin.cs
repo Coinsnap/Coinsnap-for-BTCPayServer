@@ -68,6 +68,11 @@ public sealed class CoinsnapPlugin : BaseBTCPayServerPlugin
         services.AddSingleton<IPluginHookFilter, CoinsnapLnurlRequestFilter>();
         services.AddSingleton<CoinsnapSettlementPoller>();
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<CoinsnapSettlementPoller>());
+        services.AddSingleton<IHostedService>(provider => new CoinsnapAmountLimitSync(
+            provider.GetRequiredService<BTCPayServer.EventAggregator>(),
+            provider,
+            provider.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>(),
+            provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CoinsnapAmountLimitSync>>()));
 
         base.Execute(services);
     }

@@ -72,6 +72,17 @@ The plugin is currently distributed for manual installation, not through the off
 
 New invoices can now offer Lightning payments to the configured Coinsnap Wallet.
 
+### Amount limits
+
+Each Coinsnap Lightning Address accepts payments only up to a maximum amount. After you save the
+connection, the plugin sets BTCPay Server's limit for **Lightning** and **LNURL** to that maximum,
+under **Checkout Appearance → Enable payment methods only when amount is …**. BTCPay Server then
+leaves Lightning off larger invoices, and the customer pays with another payment method if the store
+has one.
+
+If you set your own limit there for Lightning or LNURL, the plugin leaves it unchanged. If you switch
+the store away from Coinsnap, the plugin removes the limits it set.
+
 ### Test your first payment
 
 1. Create a small, fixed-amount invoice in your BTCPay Server store.
@@ -116,7 +127,7 @@ BTCPay Server stores the Lightning invoice and payment proof under **Off-Chain P
 
 - **Bitcoin mainnet only.** Testnet and other networks are not supported.
 - **Coinsnap addresses only.** The Lightning Address must end in `@coinsnap.app`.
-- **Fixed amounts in whole satoshis.** Amounts must be within the minimum and maximum supported by Coinsnap. BTCPay Server does not offer Lightning for invoices outside those limits; when Lightning is the only payment method, such an invoice cannot be created.
+- **Fixed amounts in whole satoshis, within your address's limits.** BTCPay Server does not offer Lightning for invoices above your address's maximum (see [Amount limits](#amount-limits)). When Lightning is the store's only payment method, such an invoice cannot be created.
 - **Variable-amount top-ups.** Top-up invoices without a fixed amount use BTCPay Server's LNURL flow, in which the customer's wallet supplies the amount.
 - **Receiving only.** No outgoing payments, automatic Lightning refunds, balance queries or channel operations.
 - **Beta software.** Compatibility and invoice-settlement behavior must be tested before relying on the plugin for production payments.
