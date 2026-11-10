@@ -159,9 +159,12 @@ internal sealed class FakeStoreConfigLookup : ICoinsnapStoreConfigStore
     public List<string> Removed { get; } = [];
     public HashSet<string> FailingStores { get; } = new(StringComparer.Ordinal);
     public Exception? Failure { get; set; }
+    public Exception? ListFailure { get; set; }
 
     public Task<IReadOnlyCollection<string>> GetStoreIdsAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyCollection<string>>(ConnectionStrings.Keys.ToArray());
+        ListFailure is not null
+            ? Task.FromException<IReadOnlyCollection<string>>(ListFailure)
+            : Task.FromResult<IReadOnlyCollection<string>>(ConnectionStrings.Keys.ToArray());
 
     public Task RemoveLightningConnectionAsync(string storeId, CancellationToken cancellationToken = default)
     {
