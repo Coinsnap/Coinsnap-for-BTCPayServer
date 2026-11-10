@@ -75,8 +75,7 @@ public sealed class CoinsnapBindingRotation : EventHostedServiceBase
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Could not rotate the Coinsnap binding of store {StoreId}; rotate it with POST /api/v1/stores/{StoreId}/coinsnap/rotate-binding",
-                    storeId, storeId);
+                    "Could not rotate the Coinsnap binding of store {StoreId}", storeId);
                 return;
             }
         }
@@ -114,7 +113,7 @@ public sealed class CoinsnapBindingRotation : EventHostedServiceBase
             !values.TryGetValue("ln-address", out var address))
             return null;
 
-        config.ConnectionString = GreenfieldCoinsnapController.Build(address, storeId, _binding.Sign(storeId));
+        config.ConnectionString = CoinsnapLightningConnectionStringHandler.Build(address, storeId, _binding.Sign(storeId));
         store.SetPaymentMethodConfig(handlers[paymentMethodId], config);
         await stores.UpdateStore(store);
         _logger.LogInformation("Rotated the Coinsnap binding of store {StoreId}", storeId);

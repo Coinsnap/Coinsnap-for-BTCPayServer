@@ -151,6 +151,9 @@ public sealed class CoinsnapLightningConnectionStringHandler : ILightningConnect
     internal static bool IsNetworkAllowed(Network network, bool hostOverridden) =>
         network == Network.Main || hostOverridden;
 
+    internal static string Build(string lightningAddress, string storeId, string binding) =>
+        $"type=coinsnap;server=https://{CoinsnapConstants.Host};ln-address={lightningAddress};store-id={storeId};binding={binding};";
+
     internal static string ConnectionIdentity(CoinsnapLightningAddress address, string? storeId) =>
         string.IsNullOrWhiteSpace(storeId) ? $"address:{address.Value}" : $"store:{storeId}";
 }
