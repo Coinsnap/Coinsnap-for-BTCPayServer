@@ -3,13 +3,13 @@ namespace BTCPayServer.Plugins.Coinsnap.Tests;
 public class PluginDependencyTests
 {
     [Theory]
-    [InlineData("2.4.5", true)]
+    [InlineData("2.4.7", true)]
     [InlineData("2.4.9", true)]
-    [InlineData("2.4.4", false)]
-    [InlineData("2.4.3", false)]
-    [InlineData("2.5.0", false)]
-    [InlineData("3.0.0", false)]
-    public void LoadsOnlyOnTestedBtcpayVersions(string btcpay, bool loads)
+    [InlineData("2.4.6", false)]
+    [InlineData("2.4.5", false)]
+    [InlineData("2.5.0", true)]
+    [InlineData("3.0.0", true)]
+    public void LoadsOnBtcpay247OrNewer(string btcpay, bool loads)
     {
         var dependency = new CoinsnapPlugin().Dependencies.Single(d => d.Identifier == nameof(BTCPayServer));
 

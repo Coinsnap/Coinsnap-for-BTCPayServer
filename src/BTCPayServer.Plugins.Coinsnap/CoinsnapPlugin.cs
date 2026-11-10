@@ -14,7 +14,7 @@ public sealed class CoinsnapPlugin : BaseBTCPayServerPlugin
     [
         // Only tested BTCPay versions. The plugin implements internal BTCPay contracts,
         // so widen this deliberately after testing each new BTCPay release.
-        new() { Identifier = nameof(BTCPayServer), Condition = ">=2.4.5 && <2.5.0" }
+        new() { Identifier = nameof(BTCPayServer), Condition = ">=2.4.7" }
     ];
 
     public override void Execute(IServiceCollection services)
