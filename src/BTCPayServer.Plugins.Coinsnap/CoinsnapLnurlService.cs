@@ -431,11 +431,21 @@ internal sealed class CoinsnapLnurlService
         ExpiresAt = parsed.ExpiresAt
     };
 
-    private static T Deserialize<T>(string body, string operation) where T : class
+    // Explicit rather than JsonConvert.DefaultSettings, which any other plugin in the process can change:
+    // Coinsnap's answers never pick a .NET type, and nesting is bounded.
+    internal static readonly JsonSerializerSettings SafeJsonSettings = new()
+    {
+        TypeNameHandling = TypeNameHandling.None,
+        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+        MaxDepth = 32,
+        DateParseHandling = DateParseHandling.None
+    };
+
+    internal static T Deserialize<T>(string body, string operation) where T : class
     {
         try
         {
-            return JsonConvert.DeserializeObject<T>(body)
+            return JsonConvert.DeserializeObject<T>(body, SafeJsonSettings)
                    ?? throw new FormatException($"Coinsnap {operation} returned an empty JSON value.");
         }
         catch (JsonException ex)

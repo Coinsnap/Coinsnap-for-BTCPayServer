@@ -69,13 +69,13 @@ public sealed class CoinsnapBindingRotation : EventHostedServiceBase
             }
             catch (Exception ex) when (attempt < 3 && !cancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning(ex, "Rotating the Coinsnap binding of store {StoreId} failed, retrying", storeId);
+                _logger.LogWarning(ex, "Rotating the Coinsnap binding of store {StoreId} failed, retrying", CoinsnapLogMask.StoreId(storeId));
                 await Task.Delay(TimeSpan.FromSeconds(5 * attempt), cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Could not rotate the Coinsnap binding of store {StoreId}", storeId);
+                    "Could not rotate the Coinsnap binding of store {StoreId}", CoinsnapLogMask.StoreId(storeId));
                 return;
             }
         }
@@ -116,7 +116,7 @@ public sealed class CoinsnapBindingRotation : EventHostedServiceBase
         config.ConnectionString = CoinsnapLightningConnectionStringHandler.Build(address, storeId, _binding.Sign(storeId));
         store.SetPaymentMethodConfig(handlers[paymentMethodId], config);
         await stores.UpdateStore(store);
-        _logger.LogInformation("Rotated the Coinsnap binding of store {StoreId}", storeId);
+        _logger.LogInformation("Rotated the Coinsnap binding of store {StoreId}", CoinsnapLogMask.StoreId(storeId));
         return config.ConnectionString;
     }
 }

@@ -34,7 +34,7 @@ internal sealed class CoinsnapForeignStoreGuard : IHostedService
         await _stores.RemoveLightningConnectionAsync(storeId, cancellationToken);
         _logger.LogWarning(
             "Removed the Lightning connection of store {StoreId}: it was a Coinsnap connection issued for another store",
-            storeId);
+            CoinsnapLogMask.StoreId(storeId));
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -67,7 +67,7 @@ internal sealed class CoinsnapForeignStoreGuard : IHostedService
         {
             _logger.LogError(ex,
                 "Could not check the Lightning connection of store {StoreId} for a Coinsnap connection issued for another store",
-                storeId);
+                CoinsnapLogMask.StoreId(storeId));
         }
     }
 
