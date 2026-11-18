@@ -64,7 +64,7 @@ internal sealed class CoinsnapAmountLimitSync : EventHostedServiceBase
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            _logger.LogWarning(ex, "Could not align the Lightning amount limits of store {StoreId} with Coinsnap", storeId);
+            _logger.LogWarning(ex, "Could not align the Lightning amount limits of store {StoreId} with Coinsnap", CoinsnapLogMask.StoreId(storeId));
         }
     }
 
@@ -91,7 +91,7 @@ internal sealed class CoinsnapAmountLimitSync : EventHostedServiceBase
             return;
         await stores.UpdateStore(store);
         _logger.LogInformation("Aligned the Lightning amount limits of store {StoreId} with Coinsnap ({Maximum} BTC)",
-            storeId, maximum?.ToString() ?? "none");
+            CoinsnapLogMask.StoreId(storeId), maximum?.ToString() ?? "none");
     }
 
     private async Task<CoinsnapLnurlPayResponse> GetMetadataAsync(CoinsnapLightningAddress address, CancellationToken cancellationToken)
